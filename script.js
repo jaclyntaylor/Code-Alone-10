@@ -59,3 +59,52 @@ const chatData = {
     },
   ],
 };
+
+function changeChannel(e) {
+  let active = document.querySelector(".channel.active");
+  if (active) {
+    active.classList.remove("active");
+  }
+  let clicked = e.currentTarget;
+  clicked.classList.add("active");
+  let changeHeader = document.querySelector("#channel-title");
+  changeHeader.textContent = clicked.textContent;
+
+  messages(clicked.dataset.channel);
+
+}
+
+function messages(channelName){
+  let container = document.querySelector("#chat-messages");
+  let template = document.querySelector("template");
+  container.innerHTML = "";
+  let aMessages = chatData[channelName] || [];
+
+  aMessages.forEach((msg) => {
+    let newMessage = document.importNode(template.content,true);
+
+    newMessage.querySelector(".sender").textContent = `${msg.sender}:`;
+    newMessage.querySelector(".text").textContent = msg.text;
+
+    if (msg.fromSelf) {
+      newMessage.querySelector(".message").classList.add("self");
+    }
+    container.appendChild(newMessage);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  let channels = document.querySelectorAll(".channel");
+  channels.forEach((channel) => {
+    channel.addEventListener("click", changeChannel);
+  });
+  let sendButton = document.querySelector(".chat-input button");
+  if (sendButton) {
+    sendButton.addEventListener("click", sendMessage);
+  }
+  channels.forEach((channel) => {
+    if (!channel.id) {
+      channel.id = `channel-${channel.dataset.channel}`;
+    }
+  });
+});
